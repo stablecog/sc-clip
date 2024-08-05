@@ -3,7 +3,6 @@ import logging.handlers
 import logging_loki
 from multiprocessing import Queue
 import os
-import uuid
 import sys
 from dotenv import load_dotenv
 from enum import Enum
