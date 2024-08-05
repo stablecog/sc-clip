@@ -25,7 +25,7 @@ class ObjectForEmbedding:
 
 
 @clipapi.route("/", methods=["GET"])
-def health():
+def root():
     return "OK", 200
 
 
