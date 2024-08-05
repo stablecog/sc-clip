@@ -100,7 +100,7 @@ def clip_embed():
             embeds[index] = obj
 
     e = time.time()
-    logging.info(f"📎 Embedded {len(req_body)} item(s) in: {e-s:.2f} seconds  🖥️\n")
+    logging.info(f"📎 ✅ Responded for {len(req_body)} item(s) in: {e-s:.2f} sec.")
     return jsonify({"embeddings": embeds})
 
 
