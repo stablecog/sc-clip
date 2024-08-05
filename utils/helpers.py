@@ -17,7 +17,7 @@ def time_log(after: str = "Completed", before: str | None = None):
     finally:
         end_time = time.time()
         execution_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        logging.info(f"{after}: {execution_time:.0f}ms")
+        logging.info(f"{after}: {execution_time:.0f} ms")
 
 
 def download_image(url):
