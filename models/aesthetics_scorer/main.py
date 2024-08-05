@@ -1,3 +1,4 @@
+import logging
 import torch
 
 from models.constants import (
@@ -6,6 +7,7 @@ from models.constants import (
     OpenCLIP,
     DEVICE_CPU,
 )
+from utils.helpers import time_log
 from .model import preprocess
 
 
@@ -31,15 +33,21 @@ def generate_aesthetic_scores(
     rating_model = aesthetics_scorer.rating_model
     artifacts_model = aesthetics_scorer.artifacts_model
 
-    inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE_CPU)
-    with torch.no_grad():
-        vision_output = vision_model(**inputs)
-    pooled_output = vision_output.pooler_output
-    embedding = preprocess(pooled_output)
+    with time_log(f"🖌️ Inputs prepared"):
+        inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE_CPU)
+        logging.info(f"📜 Inputs: {inputs}")
+    with time_log(f"🖌️ Got vision output"):
+        with torch.no_grad():
+            vision_output = vision_model(**inputs)
+            logging.info(f"📜 Vision output: {vision_output}")
+    with time_log(f"🖌️ Embedding preprocess"):
+        embedding = preprocess(vision_output.pooler_output)
 
-    with torch.no_grad():
-        rating = rating_model(embedding)
-        artifact = artifacts_model(embedding)
+    with time_log(f"🖌️ Got score"):
+        with torch.no_grad():
+            rating = rating_model(embedding)
+            artifact = artifacts_model(embedding)
+
     return AestheticScoreResult(
         rating_score=normalize(rating.detach().cpu().item(), 0, 10),
         artifact_score=normalize(artifact.detach().cpu().item(), 0, 5),
