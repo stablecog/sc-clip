@@ -1,3 +1,4 @@
+import logging
 import torch
 
 from models.constants import (
@@ -31,6 +32,8 @@ def generate_aesthetic_scores(
     rating_model = aesthetics_scorer.rating_model
     artifacts_model = aesthetics_scorer.artifacts_model
     calculated_embedding = embedding
+
+    logging.info(f"Shape of calculated_embedding: {calculated_embedding.shape}")
 
     if calculated_embedding is None:
         inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE_CPU)

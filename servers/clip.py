@@ -4,7 +4,7 @@ import traceback
 from flask import Flask, request, current_app, jsonify
 from waitress import serve
 
-from models.aesthetics_scorer.generate import generate_aesthetic_scores
+from models.aesthetics_scorer.main import generate_aesthetic_scores
 from models.open_clip.main import (
     embeds_of_texts,
     embeds_of_images,
@@ -13,7 +13,7 @@ from models.constants import ModelsPack
 from utils.helpers import download_images, time_log
 import time
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import List
 
 clipapi = Flask(__name__)
 
@@ -100,6 +100,7 @@ def clip_embed():
         )
         for i, embed in enumerate(image_embeds):
             image_embed_tensor = image_embed_tensors[i]
+            logging.info(f"Shape of image_embed_tensor: {image_embed_tensor.shape}")
             item = image_objects[i].item
             index = image_objects[i].index
             id = item.get("id", None)
