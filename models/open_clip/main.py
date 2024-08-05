@@ -63,9 +63,9 @@ def embeds_of_images(images: List[Image.Image], model):
         with torch.no_grad():
             inputs = clip_preprocessor(images=images)
             inputs = inputs.to(DEVICE_CPU)
-            image_embeddings = model.get_image_features(pixel_values=inputs)
-            image_embeddings = image_embeddings.cpu().numpy().tolist()
-            return image_embeddings
+            image_embedding_tensors = model.get_image_features(pixel_values=inputs)
+            image_embeddings = image_embedding_tensors.cpu().numpy().tolist()
+            return image_embeddings, image_embedding_tensors
 
 
 def embeds_of_texts(texts: str, model, tokenizer):

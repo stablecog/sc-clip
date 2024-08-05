@@ -94,11 +94,12 @@ def clip_embed():
             tb = traceback.format_exc()
             logging.info(f"📎 🔴 Failed to download images: {tb}\n")
             return str(e), 500
-        image_embeds = embeds_of_images(
+        image_embeds, image_embed_tensors = embeds_of_images(
             pil_images,
             models_pack.open_clip.model,
         )
         for i, embed in enumerate(image_embeds):
+            image_embed_tensor = image_embed_tensors[i]
             item = image_objects[i].item
             index = image_objects[i].index
             id = item.get("id", None)
@@ -117,7 +118,7 @@ def clip_embed():
                     image=pil_images[i],
                     aesthetics_scorer=models_pack.aesthetics_scorer,
                     clip=models_pack.open_clip,
-                    embedding=embed,
+                    embedding=image_embed_tensor,
                 )
                 obj["aesthetic_score"] = {
                     "rating": score.rating_score,
