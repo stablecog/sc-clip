@@ -1,4 +1,3 @@
-import logging
 import torch
 
 from models.constants import (
@@ -7,7 +6,6 @@ from models.constants import (
     OpenCLIP,
     DEVICE_CPU,
 )
-from utils.helpers import time_log
 from .model import preprocess
 
 
@@ -26,28 +24,25 @@ def normalize(value, range_min, range_max):
 
 
 def generate_aesthetic_scores(
-    image, aesthetics_scorer: AestheticsScorer, clip: OpenCLIP
+    image, aesthetics_scorer: AestheticsScorer, clip: OpenCLIP, pooler_output=None
 ) -> AestheticScoreResult:
     clip_processor = clip.processor
     vision_model = clip.model.vision_model
     rating_model = aesthetics_scorer.rating_model
     artifacts_model = aesthetics_scorer.artifacts_model
+    calculated_pooler_output = pooler_output
 
-    with time_log(f"🖌️ Inputs prepared"):
+    if calculated_pooler_output is None:
         inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE_CPU)
-        logging.info(f"📜 Inputs: {inputs}")
-    with time_log(f"🖌️ Got vision output"):
         with torch.no_grad():
             vision_output = vision_model(**inputs)
-            logging.info(f"📜 Vision output: {vision_output}")
-    with time_log(f"🖌️ Embedding preprocess"):
-        embedding = preprocess(vision_output.pooler_output)
-        logging.info(f"📜 Embedding: {embedding.shape}")
+            calculated_pooler_output = vision_output.pooler_output
 
-    with time_log(f"🖌️ Got score"):
-        with torch.no_grad():
-            rating = rating_model(embedding)
-            artifact = artifacts_model(embedding)
+    embedding = preprocess(calculated_pooler_output)
+
+    with torch.no_grad():
+        rating = rating_model(embedding)
+        artifact = artifacts_model(embedding)
 
     return AestheticScoreResult(
         rating_score=normalize(rating.detach().cpu().item(), 0, 10),

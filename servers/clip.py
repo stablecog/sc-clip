@@ -94,11 +94,12 @@ def clip_embed():
             tb = traceback.format_exc()
             logging.info(f"📎 🔴 Failed to download images: {tb}\n")
             return str(e), 500
-        image_embeds = embeds_of_images(
+        image_embeds, vision_output = embeds_of_images(
             pil_images,
             models_pack.open_clip.model,
         )
         for i, embed in enumerate(image_embeds):
+            pooler_output = vision_output.pooler_output[i].unsqueeze(0)
             item = image_objects[i].item
             index = image_objects[i].index
             id = item.get("id", None)
@@ -117,6 +118,7 @@ def clip_embed():
                     image=pil_images[i],
                     aesthetics_scorer=models_pack.aesthetics_scorer,
                     clip=models_pack.open_clip,
+                    pooler_output=pooler_output,
                 )
                 obj["aesthetic_score"] = {
                     "rating": score.rating_score,
@@ -124,7 +126,7 @@ def clip_embed():
                 }
                 e_aes = time.time()
                 logging.info(
-                    f"🎨 Image {i+1} | Duration: {e_aes - s_aes:.2f} sec. | Rating Score: {score.rating_score:.2f} | Artifact Score: {score.artifact_score:.2f}"
+                    f"🎨 Image {i+1} | Duration: {(e_aes - s_aes)*1000 :.0f} ms | Rating Score: {score.rating_score:.2f} | Artifact Score: {score.artifact_score:.2f}"
                 )
 
             embeds[index] = obj
