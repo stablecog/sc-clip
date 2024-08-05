@@ -23,7 +23,6 @@ def setup_logger():
     loki_url = os.getenv("LOKI_URL")
     loki_username = os.getenv("LOKI_USERNAME")
     loki_password = os.getenv("LOKI_PASSWORD")
-    worker_name = os.getenv("WORKER_NAME", str(uuid.uuid4()))
 
     # Validate environment variables
     if not loki_url:
