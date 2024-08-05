@@ -119,7 +119,6 @@ def clip_embed():
                     image=pil_images[i],
                     aesthetics_scorer=models_pack.aesthetics_scorer,
                     clip=models_pack.open_clip,
-                    embedding=image_embed_tensor,
                 )
                 obj["aesthetic_score"] = {
                     "rating": score.rating_score,

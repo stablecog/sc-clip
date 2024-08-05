@@ -33,14 +33,13 @@ def generate_aesthetic_scores(
     artifacts_model = aesthetics_scorer.artifacts_model
     calculated_embedding = embedding
 
-    logging.info(f"Shape of calculated_embedding: {calculated_embedding.shape}")
-
     if calculated_embedding is None:
         inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE_CPU)
         with torch.no_grad():
             vision_output = vision_model(**inputs)
         pooled_output = vision_output.pooler_output
         calculated_embedding = preprocess(pooled_output)
+        logging.info(f"Shape of calculated_embedding: {calculated_embedding.shape}")
     with torch.no_grad():
         rating = rating_model(calculated_embedding)
         artifact = artifacts_model(calculated_embedding)
