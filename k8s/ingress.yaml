@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sc-clip-ingress
+  namespace: prod-stablecog
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      real_ip_header CF-Connecting-IP;
+    nginx.ingress.kubernetes.io/eventsource: "true"
+    nginx.ingress.kubernetes.io/add-base-url: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/upstream-hash-by: $realip_remote_addr
+spec:
+  tls:
+    - hosts:
+        - clip.stablecog.com
+      secretName: sc-clip-stablecog-com-secret
+  rules:
+    - host: clip.stablecog.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sc-clip-service
+                port:
+                  number: 13339

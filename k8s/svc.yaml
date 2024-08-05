@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sc-clip-service
+  namespace: prod-stablecog
+spec:
+  selector:
+    app: sc-clip
+  type: ClusterIP
+  ports:
+    - port: 13339
+      targetPort: 13339

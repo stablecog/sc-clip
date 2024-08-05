@@ -1,0 +1,47 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: sc-clip-deployment
+  namespace: prod-stablecog
+  labels:
+    app: sc-clip
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sc-clip
+  template:
+    metadata:
+      labels:
+        app: sc-clip
+    spec:
+      containers:
+        - name: sc-clip
+          image: replaceme
+          ports:
+            - containerPort: 13339
+          imagePullPolicy: "Always"
+          command: ["/bin/sh", "-c"]
+          args: [". /app/venv/bin/activate && exec python /app/main.py"]
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 13339
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 13339
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          envFrom:
+            - secretRef:
+                name: sc-clip-secrets
+          env:
+            - name: CLIPAPI_PORT
+              value: "13339"
+            - name: HF_HUB_ENABLE_HF_TRANSFER
+              value: "True"
+            - name: TOKENIZERS_PARALLELISM
+              value: "true"
