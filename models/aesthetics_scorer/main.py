@@ -42,6 +42,7 @@ def generate_aesthetic_scores(
             logging.info(f"📜 Vision output: {vision_output}")
     with time_log(f"🖌️ Embedding preprocess"):
         embedding = preprocess(vision_output.pooler_output)
+        logging.info(f"📜 Embedding: {embedding.shape}")
 
     with time_log(f"🖌️ Got score"):
         with torch.no_grad():
