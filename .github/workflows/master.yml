@@ -46,6 +46,14 @@ jobs:
     env:
       GITHUB_RUN_ID: ${{ github.run_id }}
     steps:
+      - name: Send Discord Webhook
+        uses: ./.github/actions/discord-webhook
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          embed-color: 16776960
+          embed-title: "[sc-clip] ${{ needs.setup_env.outputs.commit_msg }}  •  ${{ needs.setup_env.outputs.short_sha }}"
+          embed-description: "```Build Started```"
+
       - uses: actions/checkout@v3
 
       - name: Set up QEMU
@@ -56,14 +64,6 @@ jobs:
 
       - name: Set build start in env variable
         run: echo "BUILD_START=$(date +%s)" >> $GITHUB_ENV
-
-      - name: Send Discord Webhook
-        uses: ./.github/actions/discord-webhook
-        with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          embed-color: 16776960
-          embed-title: "[sc-clip] ${{ needs.setup_env.outputs.commit_msg }}  •  ${{ needs.setup_env.outputs.short_sha }}"
-          embed-description: "```Build Started```"
 
       - name: Login to registry
         uses: docker/login-action@v2
@@ -104,7 +104,7 @@ jobs:
       - name: Deploy
         uses: ./.github/actions/k3s-deploy
         with:
-          image: stablecog/sc-auth:${{ needs.setup_env.outputs.branch_name}}-${{ env.GITHUB_RUN_ID }}
+          image: stablecog/sc-clip:${{ needs.setup_env.outputs.branch_name}}-${{ env.GITHUB_RUN_ID }}
           embed-title: "${{ needs.setup_env.outputs.commit_msg }}  •  ${{ needs.setup_env.outputs.short_sha }}"
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
           kube_config: ${{ secrets.K3S_KUBE_CONFIG }}
