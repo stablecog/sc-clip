@@ -124,7 +124,7 @@ def clip_embed():
                 }
                 e_aes = time.time()
                 logging.info(
-                    f"🎨 Image {i+1} | Duration: {e_aes - s_aes:.2f} | Rating Score: {score.rating_score:.2f} | Artifact Score: {score.artifact_score:.2f}"
+                    f"🎨 Image {i+1} | Duration: {e_aes - s_aes:.2f} sec. | Rating Score: {score.rating_score:.2f} | Artifact Score: {score.artifact_score:.2f}"
                 )
 
             embeds[index] = obj
