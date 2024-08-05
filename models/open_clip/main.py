@@ -65,7 +65,7 @@ def embeds_of_images(images: List[Image.Image], model):
             inputs = inputs.to(DEVICE_CPU)
             image_embedding_tensors = model.get_image_features(pixel_values=inputs)
             image_embeddings = image_embedding_tensors.cpu().numpy().tolist()
-            return image_embeddings, image_embedding_tensors
+            return image_embeddings
 
 
 def embeds_of_texts(texts: str, model, tokenizer):

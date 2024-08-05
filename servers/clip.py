@@ -94,13 +94,11 @@ def clip_embed():
             tb = traceback.format_exc()
             logging.info(f"📎 🔴 Failed to download images: {tb}\n")
             return str(e), 500
-        image_embeds, image_embed_tensors = embeds_of_images(
+        image_embeds = embeds_of_images(
             pil_images,
             models_pack.open_clip.model,
         )
         for i, embed in enumerate(image_embeds):
-            image_embed_tensor = image_embed_tensors[i]
-            logging.info(f"Shape of image_embed_tensor: {image_embed_tensor.shape}")
             item = image_objects[i].item
             index = image_objects[i].index
             id = item.get("id", None)
