@@ -89,7 +89,6 @@ def clip_embed():
         image_embeds = embeds_of_images(
             pil_images,
             models_pack.open_clip.model,
-            models_pack.open_clip.processor,
         )
         for i, embed in enumerate(image_embeds):
             item = imageObjects[i]["item"]
