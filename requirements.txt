@@ -7,3 +7,4 @@ flask
 huggingface-hub
 python-logging-loki
 tabulate
+waitress
