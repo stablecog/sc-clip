@@ -4,6 +4,7 @@ import traceback
 from flask import Flask, request, current_app, jsonify
 from waitress import serve
 
+from models.aesthetics_scorer.generate import generate_aesthetic_scores
 from models.open_clip.main import (
     embeds_of_texts,
     embeds_of_images,
@@ -12,8 +13,15 @@ from models.constants import ModelsPack
 from utils.helpers import download_images, time_log
 import time
 import logging
+from typing import List, Dict, Any, Optional, Union
 
 clipapi = Flask(__name__)
+
+
+class ObjectForEmbedding:
+    def __init__(self, item: any, index: int):
+        self.item = item
+        self.index = index
 
 
 @clipapi.route("/health", methods=["GET"])
@@ -50,35 +58,35 @@ def clip_embed():
             return "Body should be an array", 400
 
     embeds = [None for _ in range(len(req_body))]
-    textObjects = []
-    imageObjects = []
+    text_objects: List[ObjectForEmbedding] = []
+    image_objects: List[ObjectForEmbedding] = []
     for index, item in enumerate(req_body):
         if "text" in item:
-            textObjects.append({"item": item, "index": index})
+            text_objects.append(ObjectForEmbedding(item, index))
         if "image" in item:
-            imageObjects.append({"item": item, "index": index})
+            image_objects.append(ObjectForEmbedding(item, index))
 
-    if len(textObjects) > 0:
-        texts = [obj["item"]["text"] for obj in textObjects]
+    if len(text_objects) > 0:
+        texts = [obj.item["text"] for obj in text_objects]
         text_embeds = embeds_of_texts(
             texts,
             models_pack.open_clip.model,
             models_pack.open_clip.tokenizer,
         )
         for i, embed in enumerate(text_embeds):
-            item = textObjects[i]["item"]
-            index = textObjects[i]["index"]
+            item = text_objects[i].item
+            index = text_objects[i].index
             id = item.get("id", None)
             obj = {"input_text": item["text"], "embedding": embed}
             if id is not None:
                 obj["id"] = id
             embeds[index] = obj
 
-    if len(imageObjects) > 0:
+    if len(image_objects) > 0:
         image_urls = []
         pil_images = []
-        for obj in imageObjects:
-            image_urls.append(obj["item"]["image"])
+        for obj in image_objects:
+            image_urls.append(obj.item["image"])
         try:
             with time_log(f"📎 Downloaded {len(image_urls)} image(s)"):
                 pil_images = download_images(urls=image_urls, max_workers=25)
@@ -91,12 +99,34 @@ def clip_embed():
             models_pack.open_clip.model,
         )
         for i, embed in enumerate(image_embeds):
-            item = imageObjects[i]["item"]
-            index = imageObjects[i]["index"]
+            item = image_objects[i].item
+            index = image_objects[i].index
             id = item.get("id", None)
             obj = {"image": image_urls[i], "embedding": embed}
             if id is not None:
                 obj["id"] = id
+
+            # Calculate score if needed
+            if "calculate_score" in item and (
+                item["calculate_score"] is True
+                or item["calculate_score"] == "true"
+                or item["calculate_score"] == "True"
+            ):
+                s_aes = time.time()
+                score = generate_aesthetic_scores(
+                    image=pil_images[i],
+                    aesthetics_scorer=models_pack.aesthetics_scorer,
+                    clip=models_pack.open_clip,
+                )
+                obj["aesthetic_score"] = {
+                    "rating": score.rating_score,
+                    "artifact": score.artifact_score,
+                }
+                e_aes = time.time()
+                logging.info(
+                    f"🎨 Image {i+1} | Duration: {e_aes - s_aes:.2f} | Rating Score: {score.rating_score:.2f} | Artifact Score: {score.artifact_score:.2f}"
+                )
+
             embeds[index] = obj
 
     e = time.time()

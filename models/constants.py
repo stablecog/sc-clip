@@ -23,3 +23,13 @@ class ModelsPack:
     ):
         self.open_clip = open_clip
         self.aesthetics_scorer = aesthetics_scorer
+
+
+class AestheticScoreResult:
+    def __init__(
+        self,
+        rating_score: float,
+        artifact_score: float,
+    ):
+        self.rating_score = rating_score
+        self.artifact_score = artifact_score

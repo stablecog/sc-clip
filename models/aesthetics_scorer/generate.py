@@ -1,6 +1,11 @@
 import torch
 
-from models.constants import AestheticsScorer, OpenCLIP, DEVICE_CPU
+from models.constants import (
+    AestheticScoreResult,
+    AestheticsScorer,
+    OpenCLIP,
+    DEVICE_CPU,
+)
 from .model import preprocess
 
 
@@ -16,16 +21,6 @@ def normalize(value, range_min, range_max):
     # Normalize the value
     normalized_value = (value - range_min) / (range_max - range_min)
     return max(0, min(normalized_value, 1))  # Clamp between 0 and 1
-
-
-class AestheticScoreResult:
-    def __init__(
-        self,
-        rating_score: float,
-        artifact_score: float,
-    ):
-        self.rating_score = rating_score
-        self.artifact_score = artifact_score
 
 
 def generate_aesthetic_scores(
