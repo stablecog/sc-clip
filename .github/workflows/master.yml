@@ -46,6 +46,8 @@ jobs:
     env:
       GITHUB_RUN_ID: ${{ github.run_id }}
     steps:
+      - uses: actions/checkout@v3
+
       - name: Send Discord Webhook
         uses: ./.github/actions/discord-webhook
         with:
@@ -53,8 +55,6 @@ jobs:
           embed-color: 16776960
           embed-title: "[sc-clip] ${{ needs.setup_env.outputs.commit_msg }}  •  ${{ needs.setup_env.outputs.short_sha }}"
           embed-description: "```Build Started```"
-
-      - uses: actions/checkout@v3
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

@@ -29,7 +29,6 @@ def health():
     return "OK", 200
 
 
-#
 @clipapi.route("/embed", methods=["POST"])
 def clip_embed():
     s = time.time()
