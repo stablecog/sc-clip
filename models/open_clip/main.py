@@ -61,7 +61,7 @@ def clip_preprocessor(images: List[Image.Image]):
 def embeds_of_images(images: List[Image.Image], model):
     with time_log(f"[] OpenCLIP: Embedded {len(images)} image(s)"):
         with torch.no_grad():
-            inputs = clip_preprocessor(images=images, return_tensors="pt")
+            inputs = clip_preprocessor(images=images)
             inputs = inputs.to(DEVICE_CPU)
             image_embeddings = model.get_image_features(pixel_values=inputs)
             image_embeddings = image_embeddings.cpu().numpy().tolist()
