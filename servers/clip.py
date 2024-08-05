@@ -24,6 +24,11 @@ class ObjectForEmbedding:
         self.index = index
 
 
+@clipapi.route("/", methods=["GET"])
+def health():
+    return "OK", 200
+
+
 @clipapi.route("/health", methods=["GET"])
 def health():
     return "OK", 200
