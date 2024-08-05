@@ -99,7 +99,6 @@ def clip_embed():
             models_pack.open_clip.model,
         )
         for i, embed in enumerate(image_embeds):
-            pooler_output = vision_output.pooler_output[i].unsqueeze(0)
             item = image_objects[i].item
             index = image_objects[i].index
             id = item.get("id", None)
@@ -114,6 +113,7 @@ def clip_embed():
                 or item["calculate_score"] == "True"
             ):
                 s_aes = time.time()
+                pooler_output = vision_output.pooler_output[i].unsqueeze(0)
                 score = generate_aesthetic_scores(
                     image=pil_images[i],
                     aesthetics_scorer=models_pack.aesthetics_scorer,
