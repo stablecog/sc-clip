@@ -107,7 +107,7 @@ def clip_embed():
             item = image_objects[i].item
             index = image_objects[i].index
             id = item.get("id", None)
-            obj = {"image": image_urls[i], "embedding": embed}
+            obj = {"input_image": image_urls[i], "embedding": embed}
             if id is not None:
                 obj["id"] = id
 
