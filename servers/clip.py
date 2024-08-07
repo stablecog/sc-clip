@@ -37,6 +37,7 @@ def health():
 @clipapi.route("/embed", methods=["POST"])
 def clip_embed():
     s = time.time()
+    logging.info("📎 🟡 Received request")
     with current_app.app_context():
         models_pack: ModelsPack = current_app.models_pack
     authheader = request.headers.get("Authorization")
@@ -62,6 +63,7 @@ def clip_embed():
             logging.error("📎 🔴 Body should be an array")
             return "Body should be an array", 400
 
+    logging.info(f"📎 🔵 Received {len(req_body)} item(s) for embedding")
     embeds = [None for _ in range(len(req_body))]
     text_objects: List[ObjectForEmbedding] = []
     image_objects: List[ObjectForEmbedding] = []
