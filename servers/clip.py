@@ -37,7 +37,6 @@ def health():
 @clipapi.route("/embed", methods=["POST"])
 def clip_embed():
     s = time.time()
-    logging.info("📎 🟡 Received request")
     with current_app.app_context():
         models_pack: ModelsPack = current_app.models_pack
     authheader = request.headers.get("Authorization")
