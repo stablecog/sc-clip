@@ -45,7 +45,11 @@ def clip_embed():
         logging.error("📎 🔴 Unauthorized: Missing authorization header")
         return "Unauthorized", 401
     if authheader != os.environ["CLIPAPI_AUTH_TOKEN"]:
-        logging.error("📎 🔴 Unauthorized: Invalid authorization header")
+        logging.error(
+            "📎 🔴 Unauthorized: Invalid authorization header",
+            authheader,
+            os.environ("CLIPAPI_AUTH_TOKEN"),
+        )
         return "Unauthorized", 401
 
     req_body = None
