@@ -5,6 +5,7 @@ from flask import Flask, request, current_app, jsonify
 from waitress import serve
 
 from models.aesthetics_scorer.main import generate_aesthetic_scores
+from models.nsfw_scorer.main import generate_nsfw_score
 from models.open_clip.main import (
     embeds_of_texts,
     embeds_of_images,
@@ -93,6 +94,7 @@ def clip_embed():
     if len(image_objects) > 0:
         image_urls = []
         pil_images = []
+        nsfw_scores = []
         for obj in image_objects:
             image_urls.append(obj.item["image"])
         try:
@@ -136,6 +138,24 @@ def clip_embed():
                 logging.info(
                     f"🎨 Image {i+1} | Duration: {(e_aes - s_aes)*1000 :.0f} ms | Rating Score: {score.rating_score:.2f} | Artifact Score: {score.artifact_score:.2f}"
                 )
+            if "check_nsfw" in item and (
+                item["check_nsfw"] is True
+                or item["check_nsfw"] == "true"
+                or item["check_nsfw"] == "True"
+            ):
+                nsfw_score = None
+                try:
+                    with time_log(f"📎 Calculated NSFW score for image {i+1}"):
+                        nsfw_result = generate_nsfw_score(
+                            images=[pil_images[i]],
+                            nsfw_scorer=models_pack.nsfw_scorer,
+                        )
+                        nsfw_score = nsfw_result[0].nsfw_score
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    logging.info(f"📎 🔴 Failed to calculate NSFW score: {tb}\n")
+                    return str(e), 500
+                obj["nsfw_score"] = nsfw_score
 
             embeds[index] = obj
 

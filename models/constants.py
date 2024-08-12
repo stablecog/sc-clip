@@ -15,14 +15,21 @@ class AestheticsScorer:
         self.artifacts_model = artifacts_model
 
 
+class NSFWScorer:
+    def __init__(self, pipeline):
+        self.pipeline = pipeline
+
+
 class ModelsPack:
     def __init__(
         self,
         open_clip: OpenCLIP,
         aesthetics_scorer: AestheticsScorer,
+        nsfw_scorer: NSFWScorer,
     ):
         self.open_clip = open_clip
         self.aesthetics_scorer = aesthetics_scorer
+        self.nsfw_scorer = nsfw_scorer
 
 
 class AestheticScoreResult:
@@ -33,3 +40,11 @@ class AestheticScoreResult:
     ):
         self.rating_score = rating_score
         self.artifact_score = artifact_score
+
+
+class NSFWScoreResult:
+    def __init__(
+        self,
+        nsfw_score: float,
+    ):
+        self.nsfw_score = nsfw_score

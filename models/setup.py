@@ -1,7 +1,7 @@
 import os
 import time
 from huggingface_hub import login
-from transformers import AutoModel, AutoProcessor, AutoTokenizer
+from transformers import AutoModel, AutoProcessor, AutoTokenizer, pipeline
 from models.aesthetics_scorer.constants import (
     AESTHETICS_SCORER_CACHE_DIR,
     AESTHETICS_SCORER_OPENCLIP_VIT_H_14_ARTIFACT_CONFIG,
@@ -15,8 +15,10 @@ from models.constants import (
     SC_CLIP_VERSION,
     AestheticsScorer,
     ModelsPack,
+    NSFWScorer,
     OpenCLIP,
 )
+from models.nsfw_scorer.constants import NSFW_SCORER_MODEL_ID
 from models.open_clip.constants import OPEN_CLIP_MODEL_CACHE, OPEN_CLIP_MODEL_ID
 import logging
 from tabulate import tabulate
@@ -69,6 +71,15 @@ def setup() -> ModelsPack:
     )
     logging.info("✅ Loaded Aesthetics Scorer")
 
+    # For NSFW scorer
+    logging.info("🟡 Loading NSFW Scorer")
+    nsfw_scorer = NSFWScorer(
+        pipeline=pipeline("image-classification", model=NSFW_SCORER_MODEL_ID).to(
+            DEVICE_CPU
+        )
+    )
+    logging.info("✅ Loaded Aesthetics Scorer")
+
     end = time.time()
     logging.info("//////////////////////////////////////////////////////////////////")
     logging.info(f"✅ Setup is done in: {round((end - start))} sec.")
@@ -77,4 +88,5 @@ def setup() -> ModelsPack:
     return ModelsPack(
         open_clip=open_clip,
         aesthetics_scorer=aesthetics_scorer,
+        nsfw_scorer=nsfw_scorer,
     )
