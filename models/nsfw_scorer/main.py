@@ -14,7 +14,7 @@ def generate_nsfw_score(
         nsfw_score = next(
             (item["score"] for item in result if item["label"] == "nsfw"), None
         )
-        if nsfw_score is not None:
+        if nsfw_score is None:
             raise ValueError("NSFW label not found in the result.")
         scores.append(NSFWScoreResult(nsfw_score=nsfw_score))
     return scores
