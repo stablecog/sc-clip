@@ -221,9 +221,14 @@ def nsfw_check():
         logging.info(f"📎 👙 🔴 Failed to download images: {tb}\n")
         return str(e), 500
 
+    m = time.time()
     nsfw_scores = generate_nsfw_score(
         images=pil_images,
         nsfw_scorer=models_pack.nsfw_scorer,
+    )
+    n = time.time()
+    logging.info(
+        f"📎 👙 🟢  Calculated NSFW score for {len(image_urls)} image(s) in: {(n-m)*1000:.0f} ms"
     )
 
     response = []
