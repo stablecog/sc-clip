@@ -214,7 +214,7 @@ def nsfw_check():
         return "No image URLs found in the request body", 400
 
     try:
-        with time_log(f"📎 Downloaded {len(image_urls)} image(s)"):
+        with time_log(f"📎 👙 Downloaded {len(image_urls)} image(s)"):
             pil_images = download_images(urls=image_urls, max_workers=25)
     except Exception as e:
         tb = traceback.format_exc()
