@@ -11,7 +11,7 @@ from models.aesthetics_scorer.constants import (
 )
 from models.aesthetics_scorer.model import load_model as load_aesthetics_scorer_model
 from models.constants import (
-    DEVICE_CPU,
+    DEVICE,
     SC_CLIP_VERSION,
     AestheticsScorer,
     ModelsPack,
@@ -45,7 +45,7 @@ def setup() -> ModelsPack:
     open_clip = OpenCLIP(
         model=AutoModel.from_pretrained(
             OPEN_CLIP_MODEL_ID, cache_dir=OPEN_CLIP_MODEL_CACHE
-        ).to(DEVICE_CPU),
+        ).to(DEVICE),
         processor=AutoProcessor.from_pretrained(
             OPEN_CLIP_MODEL_ID, cache_dir=OPEN_CLIP_MODEL_CACHE
         ),
@@ -62,19 +62,21 @@ def setup() -> ModelsPack:
             weight_url=AESTHETICS_SCORER_OPENCLIP_VIT_H_14_RATING_WEIGHT_URL,
             cache_dir=AESTHETICS_SCORER_CACHE_DIR,
             config=AESTHETICS_SCORER_OPENCLIP_VIT_H_14_RATING_CONFIG,
-        ).to(DEVICE_CPU),
+        ).to(DEVICE),
         artifacts_model=load_aesthetics_scorer_model(
             weight_url=AESTHETICS_SCORER_OPENCLIP_VIT_H_14_ARTIFACT_WEIGHT_URL,
             cache_dir=AESTHETICS_SCORER_CACHE_DIR,
             config=AESTHETICS_SCORER_OPENCLIP_VIT_H_14_ARTIFACT_CONFIG,
-        ).to(DEVICE_CPU),
+        ).to(DEVICE),
     )
     logging.info("✅ Loaded Aesthetics Scorer")
 
     # For NSFW scorer
     logging.info("🟡 Loading NSFW Scorer")
     nsfw_scorer = NSFWScorer(
-        pipeline=pipeline("image-classification", model=NSFW_SCORER_MODEL_ID)
+        pipeline=pipeline(
+            "image-classification", model=NSFW_SCORER_MODEL_ID, device=DEVICE
+        )
     )
     logging.info("✅ Loaded Aesthetics Scorer")
 

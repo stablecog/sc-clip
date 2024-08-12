@@ -6,7 +6,7 @@ import requests
 from urllib.parse import urlparse
 import logging
 
-from models.constants import DEVICE_CPU
+from models.constants import DEVICE
 
 
 class AestheticScorer(nn.Module):
@@ -114,7 +114,7 @@ def load_model(
     weight_url,
     config,
     cache_dir,
-    device=DEVICE_CPU,
+    device=DEVICE,
 ):
     file_path = download_weights(weight_url, cache_dir)
     model = AestheticScorer(config=config)

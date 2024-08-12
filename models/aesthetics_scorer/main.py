@@ -1,10 +1,10 @@
 import torch
 
 from models.constants import (
+    DEVICE,
     AestheticScoreResult,
     AestheticsScorer,
     OpenCLIP,
-    DEVICE_CPU,
 )
 from .model import preprocess
 
@@ -33,7 +33,7 @@ def generate_aesthetic_scores(
     calculated_pooler_output = pooler_output
 
     if calculated_pooler_output is None:
-        inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE_CPU)
+        inputs = clip_processor(images=image, return_tensors="pt").to(DEVICE)
         with torch.no_grad():
             vision_output = vision_model(**inputs)
             calculated_pooler_output = vision_output.pooler_output

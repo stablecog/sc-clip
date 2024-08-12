@@ -1,5 +1,6 @@
 from PIL import Image
-from models.constants import DEVICE_CPU
+
+from models.constants import DEVICE
 from .constants import OPEN_CLIP_TOKEN_LENGTH_MAX
 from typing import List
 import torch
@@ -62,7 +63,7 @@ def embeds_of_images(images: List[Image.Image], model):
     with time_log(f"[] OpenCLIP: Embedded {len(images)} image(s)"):
         with torch.no_grad():
             inputs = clip_preprocessor(images=images)
-            inputs = inputs.to(DEVICE_CPU)
+            inputs = inputs.to(DEVICE)
             vision_output = model.vision_model(pixel_values=inputs)
             image_embedding_tensors = model.visual_projection(vision_output[1])
             image_embeddings = image_embedding_tensors.cpu().numpy().tolist()
@@ -79,7 +80,7 @@ def embeds_of_texts(texts: str, model, tokenizer):
                 truncation=True,
                 max_length=OPEN_CLIP_TOKEN_LENGTH_MAX,
             )
-            inputs = inputs.to(DEVICE_CPU)
+            inputs = inputs.to(DEVICE)
             text_embeddings = model.get_text_features(**inputs)
             text_embeddings = text_embeddings.cpu().numpy().tolist()
             return text_embeddings

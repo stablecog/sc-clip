@@ -1,5 +1,14 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 DEVICE_CPU = "cpu"
+DEVICE_CUDA = "cuda"
 SC_CLIP_VERSION = "v1.0"
+
+_DEVICE = os.getenv("DEVICE", DEVICE_CPU)
+DEVICE = _DEVICE if _DEVICE in [DEVICE_CPU, DEVICE_CUDA] else DEVICE_CPU
 
 
 class OpenCLIP:
