@@ -10,11 +10,12 @@ from models.open_clip.main import (
     embeds_of_texts,
     embeds_of_images,
 )
-from models.constants import ModelsPack
-from utils.helpers import download_images, time_log
+from models.constants import ModelsPack, NSFWScoreResult
+from utils.helpers import download_images, is_url, time_log
 import time
 import logging
 from typing import List
+
 
 clipapi = Flask(__name__)
 
@@ -164,6 +165,84 @@ def clip_embed():
     e = time.time()
     logging.info(f"📎 ✅ Responded for {len(req_body)} item(s) in: {(e-s)*1000:.0f} ms")
     return jsonify({"embeddings": embeds})
+
+
+@clipapi.route("/nsfw-check", methods=["POST"])
+def nsfw_check():
+    s = time.time()
+    with current_app.app_context():
+        models_pack: ModelsPack = current_app.models_pack
+    authheader = request.headers.get("Authorization")
+    if authheader is None:
+        logging.error("📎 👙 🔴 Unauthorized: Missing authorization header")
+        return "Unauthorized", 401
+    if authheader != os.environ["CLIPAPI_AUTH_TOKEN"]:
+        logging.error(
+            f"📎 👙 🔴 Unauthorized: Invalid authorization header: {authheader[:3]}...",
+        )
+        return "Unauthorized", 401
+
+    req_body = None
+    try:
+        req_body = request.get_json()
+    except Exception as e:
+        tb = traceback.format_exc()
+        logging.info(f"📎 👙 🔴 Error parsing request body: {tb}\n")
+        return str(e), 400
+    finally:
+        if req_body is None:
+            logging.error("📎 👙 🔴 Missing request body")
+            return "Missing request body", 400
+        if isinstance(req_body, list) is not True:
+            logging.error("📎 👙 🔴 Body should be an array")
+            return "Body should be an array", 400
+
+    logging.info(f"📎 👙 🔵 Received {len(req_body)} item(s) for NSFW check")
+
+    image_urls = []
+    pil_images = []
+    nsfw_scores: List[NSFWScoreResult] = []
+
+    for index, maybe_image_url in enumerate(req_body):
+        if is_url(maybe_image_url) is not True:
+            logging.error(f"📎 👙 🔴 Invalid URL: {maybe_image_url}")
+            return f"Invalid URL: {maybe_image_url}", 400
+        image_urls.append(maybe_image_url)
+
+    if len(image_urls) < 1:
+        logging.error("📎 👙 🔴 No image URLs found in the request body")
+        return "No image URLs found in the request body", 400
+
+    try:
+        with time_log(f"📎 Downloaded {len(image_urls)} image(s)"):
+            pil_images = download_images(urls=image_urls, max_workers=25)
+    except Exception as e:
+        tb = traceback.format_exc()
+        logging.info(f"📎 👙 🔴 Failed to download images: {tb}\n")
+        return str(e), 500
+
+    nsfw_scores = generate_nsfw_score(
+        images=pil_images,
+        nsfw_scorer=models_pack.nsfw_scorer,
+    )
+
+    response = []
+    for i, score in enumerate(nsfw_scores):
+        nsfw_score_obj = {
+            "nsfw": score.nsfw_score,
+        }
+        response.append(
+            {
+                "input": image_urls[i],
+                "nsfw_score": nsfw_score_obj,
+            }
+        )
+
+    e = time.time()
+    logging.info(
+        f"📎 👙 ✅ Responded for {len(req_body)} item(s) in: {(e-s)*1000:.0f} ms"
+    )
+    return jsonify({"data": response})
 
 
 def run_clipapi(models_pack: ModelsPack):

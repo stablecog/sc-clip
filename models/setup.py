@@ -74,9 +74,7 @@ def setup() -> ModelsPack:
     # For NSFW scorer
     logging.info("🟡 Loading NSFW Scorer")
     nsfw_scorer = NSFWScorer(
-        pipeline=pipeline("image-classification", model=NSFW_SCORER_MODEL_ID).to(
-            DEVICE_CPU
-        )
+        pipeline=pipeline("image-classification", model=NSFW_SCORER_MODEL_ID)
     )
     logging.info("✅ Loaded Aesthetics Scorer")
 

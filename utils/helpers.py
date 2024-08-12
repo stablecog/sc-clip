@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from PIL import Image
 from io import BytesIO
 import requests
+from urllib.parse import urlparse
 
 
 @contextmanager
@@ -32,3 +33,11 @@ def download_images(urls, max_workers=10):
         futures = [executor.submit(download_image, url) for url in urls]
         images = [future.result() for future in futures]
     return images
+
+
+def is_url(string):
+    try:
+        result = urlparse(string)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
