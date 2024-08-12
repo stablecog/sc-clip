@@ -155,7 +155,9 @@ def clip_embed():
                     tb = traceback.format_exc()
                     logging.info(f"📎 🔴 Failed to calculate NSFW score: {tb}\n")
                     return str(e), 500
-                obj["nsfw_score"] = nsfw_score
+                obj["nsfw_score"] = {
+                    "nsfw": nsfw_score,
+                }
 
             embeds[index] = obj
 
