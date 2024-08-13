@@ -31,10 +31,16 @@ def time_log(after: str = "Completed", before: str | None = None):
 
 
 def download_image(url, timeout=TIMEOUT):
-    response = requests.get(url, timeout=timeout)
-    if response.status_code != 200:
-        raise Exception(f"Failed to download image from {url}")
-    return Image.open(BytesIO(response.content)).convert("RGB")
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
+        return Image.open(BytesIO(response.content)).convert("RGB")
+    except requests.exceptions.Timeout:
+        raise Exception(
+            f"Timeout error: The request to {url} timed out after {timeout} seconds"
+        )
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Error downloading image from {url}: {str(e)}")
 
 
 def download_images(urls, max_workers=10):
