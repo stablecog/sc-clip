@@ -9,6 +9,12 @@ from urllib.parse import urlparse
 from functools import wraps
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from flask import jsonify
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TIMEOUT = os.getenv("TIMEOUT", 15)
 
 
 @contextmanager
@@ -24,8 +30,8 @@ def time_log(after: str = "Completed", before: str | None = None):
         logging.info(f"{after}: {execution_time:.0f} ms")
 
 
-def download_image(url):
-    response = requests.get(url)
+def download_image(url, timeout=TIMEOUT):
+    response = requests.get(url, timeout=timeout)
     if response.status_code != 200:
         raise Exception(f"Failed to download image from {url}")
     return Image.open(BytesIO(response.content)).convert("RGB")

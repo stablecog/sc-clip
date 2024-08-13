@@ -21,8 +21,6 @@ load_dotenv()
 
 clipapi = Flask(__name__)
 
-TIMEOUT = os.getenv("TIMEOUT", 30)
-
 
 class ObjectForEmbedding:
     def __init__(self, item: any, index: int):
@@ -41,7 +39,6 @@ def health():
 
 
 @clipapi.route("/embed", methods=["POST"])
-@timeout(TIMEOUT)
 def clip_embed():
     s = time.time()
     with current_app.app_context():
@@ -173,7 +170,6 @@ def clip_embed():
 
 
 @clipapi.route("/nsfw-check", methods=["POST"])
-@timeout(TIMEOUT)
 def nsfw_check():
     s = time.time()
     with current_app.app_context():
