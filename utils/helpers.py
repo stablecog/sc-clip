@@ -6,6 +6,9 @@ from PIL import Image
 from io import BytesIO
 import requests
 from urllib.parse import urlparse
+from functools import wraps
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
+from flask import jsonify
 
 
 @contextmanager
@@ -41,3 +44,22 @@ def is_url(string):
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
+
+
+def timeout(seconds):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(func, *args, **kwargs)
+                try:
+                    return future.result(timeout=seconds)
+                except TimeoutError:
+                    logging.error(
+                        f"🔴 Function {func.__name__} timed out after {seconds} seconds"
+                    )
+                    return jsonify({"error": "Operation timed out"}), 504
+
+        return wrapper
+
+    return decorator
