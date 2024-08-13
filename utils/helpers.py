@@ -36,13 +36,11 @@ def download_image(url, timeout=TIMEOUT):
         response.raise_for_status()  # Raises a HTTPError if the status is 4xx, 5xx
         return Image.open(BytesIO(response.content)).convert("RGB")
     except requests.exceptions.Timeout:
-        err = (
-            f"🔴 Timeout error: The request to {url} timed out after {timeout} seconds"
-        )
+        err = f'🔴 Timeout error: The request to "{url}" timed out after {timeout:.1f} sec.'
         logging.info(err)
         raise Exception(err)
     except requests.exceptions.RequestException as e:
-        err = f"🔴 Error downloading image from {url}: {str(e)}"
+        err = f'🔴 Error downloading image from "{url}": {str(e)}'
         logging.info(err)
         raise Exception(err)
 
