@@ -79,7 +79,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           file: ./Dockerfile
-          tags: stablecog/sc-clip:${{ needs.setup_env.outputs.branch_name }}-${{ env.GITHUB_RUN_ID }}
+          tags: |
+            stablecog/sc-clip:${{ needs.setup_env.outputs.branch_name }}-${{ env.GITHUB_RUN_ID }}
+            stablecog/sc-clip:latest
 
       - name: Send Discord Webhook
         if: failure()
